@@ -6,12 +6,6 @@ namespace QRest
 {
     namespace QAvailableBackends
     {
-        Couple::Couple(int control, int target)
-        {
-            this->control = control;
-            this->target = target;
-        }
-
         QBackend::QBackend()
         {
             
@@ -40,7 +34,7 @@ namespace QRest
             bool simulator, 
             bool allowQObject, 
             int nQubits, 
-            std::list<Couple> couplingMap
+            std::list<std::tuple<int, int>> couplingMap
         )
         {
             this->name = name;

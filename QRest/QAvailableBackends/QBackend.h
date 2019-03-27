@@ -6,20 +6,12 @@
 #include <stdio.h>
 #include <string>
 #include <list>
+#include <tuple>
 
 namespace QRest
 {
     namespace QAvailableBackends
     {
-        class Couple
-        {
-        public:
-            Couple(int control, int target);
-
-            int control;
-            int target;
-        };
-
         class QBackend
         {
         private:
@@ -44,7 +36,7 @@ namespace QRest
                 bool simulator, 
                 bool allowQObject, 
                 int nQubits, 
-                std::list<Couple> couplingMap
+                std::list<std::tuple<int, int>> couplingMap
             );
             ~QBackend();
             
@@ -64,7 +56,7 @@ namespace QRest
             bool simulator;
             bool allowQObject;
             int nQubits;
-            std::list<Couple> couplingMap;
+            std::list<std::tuple<int, int>> couplingMap;
         };
     }
 }

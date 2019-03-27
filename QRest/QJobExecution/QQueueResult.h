@@ -6,7 +6,7 @@
 #include <list>
 
 #include "QExecution.h"
-#include "QBackend.h"
+#include "../QAvailableBackends/QBackend.h"
 #include "QInfoQueue.h"
 
 namespace QRest
@@ -32,6 +32,7 @@ namespace QRest
                 QInfoQueue infoQueue, 
                 std::string json
             );
+            
             ~QQueueResult();
 
             std::list<QExecution> qasms;

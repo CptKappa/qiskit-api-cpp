@@ -171,19 +171,27 @@ namespace QRest
 			}
 			else
 			{
-				throw Exceptions::WebRequestException("HTTP-CODE " + response_code);
+				throw Exceptions::WebRequestException("HTTP-CODE " + std::to_string(response_code));
                 return;
 			}
 		}
-		catch (const std::exception& e)
+		catch (const QRest::Exceptions::WebRequestException& e)
 		{
-			std::cerr << "error during login: " << e.what();
+			std::cerr << "error during login: " << e.what() << std::endl;
+			throw e;
 		}
     }
 
     QJobExecution::QQueueResult QConnection::RunJob(std::string qasm, std::string backend, int shots, int maxCredits, std::string name)
     {
 		QJobExecution::QQueueResult res = QJobExecution::QQueueResult();
+
+		// get backend info
+		// get max qubits
+		// append include & regs
+		// include \"qelib1.inc\";\nqreg q[16];\ncreg c[3];\n\n
+
+		//std::string code = R"(include \"qelib1.inc\";\nqreg q[16];\ncreg c[3];\n)" + qasm;
 
 		std::string experimentName;
 		long response_code;
@@ -224,6 +232,8 @@ namespace QRest
             "\"qasms\" : [{ \"qasm\" : \"" + qasm + "\" }]" + 
             " }";
 
+		//std::cout << std::endl << std::endl << data << std::endl << std::endl << std::endl;
+
 		// set url and get variables
         std::string executeUrl = std::string(url) + 
             "/jobs?access_token=" + this->accessToken;
@@ -231,7 +241,7 @@ namespace QRest
 		try
 		{
 			std::string response = Post(executeUrl, data, &response_code);
-
+			
 			Json::Reader jsonReader;
 			Json::Value jsonObj;
 
@@ -275,18 +285,20 @@ namespace QRest
 			}
 			else
 			{
-				throw Exceptions::WebRequestException("HTTP-CODE " + response_code);
+				std::cout << "ERROR" << std::endl;
+				throw Exceptions::WebRequestException("HTTP-CODE: " + std::to_string(response_code));
 			}
 		}
-		catch (const std::exception& e)
+		catch (const QRest::Exceptions::WebRequestException& e)
 		{
 			std::cerr << "error during job execution: " << e.what();
+			throw e;
 		}
 
 		return res;
     }
 
-	void QConnection::GetResultFromExecution(std::string executionId)
+	QWrapper::QResponse* QConnection::GetResultFromExecution(std::string executionId)
 	{
 		QJobExecution::QQueueResult res = QJobExecution::QQueueResult();
 
@@ -312,23 +324,25 @@ namespace QRest
 			{
 				// save response data
 
-				std::cout << response << std::endl;
+				QWrapper::QResponse* qresponse = QWrapper::QWFactory::Create(response);
+				
+				return qresponse;
 			}
 			else
 			{
-				throw Exceptions::WebRequestException("HTTP-CODE " + response_code);
-				std::cerr << response << std::endl;
+				throw Exceptions::WebRequestException("HTTP-CODE " + std::to_string(response_code));
 			}
 		}
-		catch (const std::exception& e)
+		catch (const QRest::Exceptions::WebRequestException& e)
 		{
-			std::cerr << "error during result request: " << e.what();
+			std::cerr << "error during result request: " << e.what() << std::endl;
+			throw e;
 		}
 	}
 
-	std::list<QAvailableBackends::QBackend> QConnection::AvailableBackends()
+	std::vector<QAvailableBackends::QBackend> QConnection::AvailableBackends()
 	{
-		std::list<QAvailableBackends::QBackend> res = std::list<QAvailableBackends::QBackend>();
+		std::vector<QAvailableBackends::QBackend> res = std::vector<QAvailableBackends::QBackend>();
 
 		// set url and get variables
         std::string executeUrl = std::string(url) + "/backends";
@@ -352,11 +366,11 @@ namespace QRest
 
 				for(Json::Value backend : jsonObj)
 				{
-					std::list<QAvailableBackends::Couple> couplingMap;
+					std::list<std::tuple<int, int>> couplingMap;
 
 					for(Json::Value couple : backend["couplingMap"])
 					{
-						couplingMap.push_back(QAvailableBackends::Couple(couple[0].asInt(), couple[1].asInt()));
+						couplingMap.push_back(std::tuple<int, int>(couple[0].asInt(), couple[1].asInt()));
 					}
 
 					res.push_back(QAvailableBackends::QBackend(
@@ -382,13 +396,14 @@ namespace QRest
 			}
 			else
 			{
-				throw Exceptions::WebRequestException("HTTP-CODE " + response_code);
+				throw Exceptions::WebRequestException("HTTP-CODE " + std::to_string(response_code));
 				return res;
 			}
 		}
-		catch (const std::exception& e)
+		catch (const QRest::Exceptions::WebRequestException& e)
 		{
-			std::cerr << "error during backends request: " << e.what();
+			std::cerr << "error during backends request: " << e.what() << std::endl;
+			throw e;
 		}
 
 		return res;

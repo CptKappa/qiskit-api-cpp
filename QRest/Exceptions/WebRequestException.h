@@ -10,7 +10,7 @@ namespace QRest
 {
 	namespace Exceptions
     {
-        class WebRequestException : private std::exception
+        class WebRequestException : public std::exception
         {
         private:
             std::string message;

@@ -2,56 +2,50 @@
 
 CXX = g++
 CXXFLAGS = -c -Wall -std=c++11 -fpic
-LIBINCLUDEFLAGS = -lcurl -ljsoncpp
-LIBPATH = /usr/lib
 
 EXCEPTIONOBJECTS = Exceptions/WebRequestException.o
 QJOBEXECUTION = QJobExecution/QQueueResult.o QJobExecution/QExecution.o QJobExecution/QInfoQueue.o
 QAVAILABLEBACKENDS = QAvailableBackends/QBackend.o
-OBJECTS = $(EXCEPTIONOBJECTS) $(QJOBEXECUTION) $(QAVAILABLEBACKENDS) RestConnection.o
+QWRAPPER = QWrapper/QWFactory.o QWrapper/QResponse/QResponse.o \
+			QWrapper/QResponse/QResponseReal.o QWrapper/QResponse/QResponseRealDone.o \
+			QWrapper/QResponse/QResponseRealUndone.o QWrapper/QResponse/QResponseSim.o \
+			QWrapper/QResponse/QIP.o QWrapper/QResponse/QResult.o \
+			QWrapper/QResponse/QParamsCustomize.o QWrapper/QResponse/QStatus.o \
+			QWrapper/QResponse/QCalibration/QCalibration.o QWrapper/QResponse/QCalibration/QFridgeParameters.o \
+			QWrapper/QResponse/QCalibration/QMultiQubitGates.o QWrapper/QResponse/QCalibration/QQubit.o \
+			QWrapper/QResponse/QCalibration/QFridgeTemperature.o QWrapper/QResponse/QCalibration/QGateError.o \
+			QWrapper/QResponse/QCalibration/QQubitContent.o \
+			QWrapper/QResponse/QCode/QCode.o QWrapper/QResponse/QCode/QJsonQASM.o \
+			QWrapper/QResponse/QCode/QPlayground.o QWrapper/QResponse/QCode/QGate.o \
+			QWrapper/QResponse/QCode/QTopology.o QWrapper/QResponse/QCode/QMeasureCreg.o \
+			QWrapper/QResponse/QCode/QReg.o QWrapper/QResponse/QData/QData.o \
+			QWrapper/QResponse/QData/QAdditionalData.o QWrapper/QResponse/QData/QDataP.o
+OBJECTS = $(EXCEPTIONOBJECTS) $(QJOBEXECUTION) $(QAVAILABLEBACKENDS) $(QWRAPPER) RestConnection.o
 
 
 
-all: libqiskit.so
-
-libqiskit.so: $(OBJECTS)
-	$(CXX) $(OBJECTS) $(LIBINCLUDEFLAGS) -shared -o libqiskit.so
-
+all: $(OBJECTS)
 
 
 RestConnection.o: RestConnection.cpp RestConnection.h
 	$(CXX) RestConnection.cpp -o RestConnection.o $(CXXFLAGS)
 	
+$(QAVAILABLEBACKENDS):
+	cd QAvailableBackends && $(MAKE)
 
-QBackend.o: QAvailableBackends/QBackend.cpp QAvailableBackends/QBackend.h
-	$(CXX) QBackend.cpp -o QBackend.o $(CXXFLAGS)
+$(EXCEPTIONOBJECTS):
+	cd Exceptions && $(MAKE)
 
+$(QJOBEXECUTION):
+	cd QJobExecution && $(MAKE)
 
-QQueueResult.o: QJobExecution/QQueueResult.cpp QJobExecution/QQueueResult.h
-	$(CXX) QQueueResult.cpp -o QQueueResult.o $(CXXFLAGS)
-
-QExecution.o: QJobExecution/QExecution.cpp QJobExecution/QExecution.h
-	$(CXX) QExecution.cpp -o QExecution.o $(CXXFLAGS)
-
-QInfoQueue.o: QJobExecution/QInfoQueue.cpp QJobExecution/QInfoQueue.h
-	$(CXX) QInfoQueue.cpp -o QInfoQueue.o $(CXXFLAGS)
-
-
-
-WebRequestException.o: Exceptions/WebRequestException.cpp Exceptions/WebRequestException.h
-	$(CXX) Exceptions/WebRequestException.cpp -o Exceptions/WebRequestException.o $(CXXFLAGS)
-
-
-
-install:
-	install ./libqiskit.so $(LIBPATH)
-
-uninstall:
-	rm -f $(LIBPATH)/libqiskit.so
+$(QWRAPPER):
+	cd QWrapper && $(MAKE)
 
 clean:
 	rm -f *.o
-	rm -f Exceptions/*.o
 
-clear: clean
-	rm -f libqiskit.so
+	cd Exceptions && $(MAKE) clean
+	cd QJobExecution && $(MAKE) clean
+	cd QAvailableBackends && $(MAKE) clean
+	cd QWrapper && $(MAKE) clean

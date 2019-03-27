@@ -8,12 +8,13 @@
 #include <ctime>
 #include <iostream>
 #include <sstream>
-#include <list>
+#include <vector>
 #include <curl/curl.h>
 #include <jsoncpp/json/json.h>
 
-#include "QQueueResult.h"
+#include "QJobExecution/QQueueResult.h"
 #include "Exceptions/WebRequestException.h"
+#include "QWrapper/QWFactory.h"
 
 namespace QRest
 {
@@ -36,9 +37,9 @@ namespace QRest
 
         void Login();
 
-        QJobExecution::QQueueResult RunJob(std::string qasm, std::string backend, int shots, int maxCredits, std::string name = std::string());
-        void GetResultFromExecution(std::string executionId);
-        std::list<QAvailableBackends::QBackend> AvailableBackends();
+        QJobExecution::QQueueResult RunJob(std::string qasm, std::string backend, int shots, int maxCredits, std::string name);
+        QWrapper::QResponse* GetResultFromExecution(std::string executionId);
+        std::vector<QAvailableBackends::QBackend> AvailableBackends();
 
     private:
         // getparams: "access_token=" + this->accessToken
