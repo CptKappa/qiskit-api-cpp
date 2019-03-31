@@ -80,7 +80,7 @@ int mCircuit::Fit()
                 pathed.push_back(g);
             }else{
                 // we have  to find the shortest path to the target 
-                std::cout << "distance larger than 1" << std::endl;
+                // std::cout << "distance larger than 1" << std::endl;
                 // this stack is used to return the register back to the original location
                 std::list<boost::graph_traits<udGraph>::vertex_descriptor> returnStack;
                 

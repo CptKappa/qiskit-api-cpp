@@ -102,25 +102,25 @@ std::map<vertex_des,vertex_des> mArchitecture::getPredecessorMapFrom(int source)
 
     std::queue<int> dis;
     dis.push(source);
-    std::cout << "start search" << std::endl;
+    //std::cout << "start search" << std::endl;
     while(!dis.empty()){
         int u = dis.front();
         dis.pop();
-        std::cout << u << std::endl;
+        //std::cout << u << std::endl;
         for(int i : getConnectedVertecies(u)){
             // if not in map add it and queue it
-            std::cout <<  i << std::endl;
+            // std::cout <<  i << std::endl;
             
             if( !(pred.find(indexVertexTable[i]) != pred.end())){
                 pred[indexVertexTable[i]] = indexVertexTable[u];
                 dis.push(i);
-                std::cout << "is not in pred" << std::endl;
+                //std::cout << "is not in pred" << std::endl;
             }
         }
     }
     pred[indexVertexTable[source]] = indexVertexTable[source];
 
-    std::cout << "end search" << std::endl;
+    // std::cout << "end search" << std::endl;
     return pred;
 }
 
@@ -129,21 +129,21 @@ std::map<vertex_des,vertex_des> mArchitecture::getPredecessorMapFrom(int source)
 std::list<int> mArchitecture::getConnectedVertecies(int source){
     
     std::list<int> vecs;
-    std::cout << "get connected " << source << std::endl;
+    // std::cout << "get connected " << source << std::endl;
     for(std::list<std::tuple<int,int>>::value_type tupl : directional){
         if(std::get<1>(tupl)==source){
-            std::cout << "To" << std::endl;
+            // std::cout << "To" << std::endl;
             if(!(std::find(vecs.begin(),vecs.end(),std::get<0>(tupl))!=vecs.end())){
                 vecs.push_back(std::get<0>(tupl));
-                std::cout << std::get<0>(tupl) << std::endl;
+                // std::cout << std::get<0>(tupl) << std::endl;
             }
         }
 
         if(std::get<0>(tupl)==source){
-            std::cout << "From" << std::endl;
+            //std::cout << "From" << std::endl;
             if(!(std::find(vecs.begin(),vecs.end(),std::get<1>(tupl))!=vecs.end())){
                 vecs.push_back(std::get<1>(tupl));
-                std::cout << std::get<1>(tupl) << std::endl;
+                //std::cout << std::get<1>(tupl) << std::endl;
             }
         }   
     }
@@ -155,11 +155,11 @@ std::list<int> mArchitecture::getConnectedVertecies(int source){
     typename boost::graph_traits<udGraph>::adjacency_iterator ai;
     typename boost::graph_traits<udGraph>::adjacency_iterator ai_end;
 
-    std::cout << "from " << source << std::endl;
+    // std::cout << "from " << source << std::endl;
 
     for(tie(ai,ai_end) = boost::adjacent_vertices(indexVertexTable[source],generalGraph); ai != ai_end; ++ai){
         vecs.push_back(vertexIndexTable[*ai]);
-        std::cout << "Connected: " << *ai << std::endl;
+        // std::cout << "Connected: " << *ai << std::endl;
     }
 
     return vecs;
