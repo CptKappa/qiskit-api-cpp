@@ -5,12 +5,16 @@
 #include <list>
 #include <tuple>
 #include <iostream>
+#include <queue>
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/undirected_graph.hpp>
+#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/directed_graph.hpp>
 #include <boost/graph/exterior_property.hpp>
 #include <boost/graph/floyd_warshall_shortest.hpp>
+#include <boost/graph/named_function_params.hpp>
+#include <boost/array.hpp>
 
 typedef boost::undirected_graph<boost::no_property> udGraph;
 typedef boost::directed_graph<> dGraph;
@@ -42,6 +46,7 @@ public:
     DistanceMatrixMap distances;
     std::map<vertex_des, std::map<vertex_des, int>> disMap;
     std::map<int,boost::graph_traits<udGraph>::vertex_descriptor> indexVertexTable;
+    std::map<boost::graph_traits<udGraph>::vertex_descriptor,int> vertexIndexTable;
     dGraph directionalGraph;
 
     mArchitecture(std::list<std::tuple<int, int>> d)
@@ -68,6 +73,10 @@ public:
     void updateConnection();
 
     void updateGraphs(); // this method should only be called with updated connection
+
+    std::map<vertex_des,vertex_des> getPredecessorMapFrom(int source);
+    std::list<int> getConnectedVertecies(int source);
+    std::map<int,int> getIndexedPredecessorMap(std::map<vertex_des,vertex_des> map);
 };
 
 #endif
