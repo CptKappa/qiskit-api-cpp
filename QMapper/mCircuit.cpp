@@ -23,7 +23,7 @@ int mCircuit::Fit()
             relevant.push_back(var);
         }
     }
-    
+    /*
     // go through all relevant Gates and 
     // look at the distances between gates
     // if the total distance is equal to the 
@@ -39,8 +39,8 @@ int mCircuit::Fit()
         int dis = Backend.disMap[Backend.indexVertexTable[g.source()]][Backend.indexVertexTable[g.target()]];
         //totalDist += Backend.distances[Backend.indexVertexTable[g.source()]][Backend.indexVertexTable[g.target()]];
         totalDist = totalDist + dis;
-    }
-    
+    }*/
+    /*
     // fixing up the graph if it is not perfect yet
     // skipped if everything fits
     if(totalDist != relevant.size())
@@ -52,19 +52,101 @@ int mCircuit::Fit()
         // TODO: make this not return -1
         return -1;
     }
-    
+    */
     // The Gates fit into the Architecture
     // Go through all the gates and invert as nessessary
 
-    int inverted = 0;
+    int inverted = 0; // inverted CX gates
+    int moved = 0; // registers moved to apply CX gates
 
     std::list<mGate> updated;
 
+
+    std::list<mGate> pathed;
     
     for(mGate g : Gates){
         if(g.count()==1){
-            updated.push_back(g);
+            pathed.push_back(g);
         }else{
+
+            // check if it is directly connected
+            boost::graph_traits<udGraph>::vertex_descriptor from = Backend.indexVertexTable[g.source()];
+            boost::graph_traits<udGraph>::vertex_descriptor to = Backend.indexVertexTable[g.target()];
+        
+            int dis = Backend.disMap[Backend.indexVertexTable[g.source()]][Backend.indexVertexTable[g.target()]];
+
+            if(dis == 1){
+                // nothing to change
+                pathed.push_back(g);
+            }else{
+                // we have  to find the shortest path to the target 
+                // std::cout << "distance larger than 1" << std::endl;
+                // this stack is used to return the register back to the original location
+                std::list<boost::graph_traits<udGraph>::vertex_descriptor> returnStack;
+                
+                std::map<boost::graph_traits<udGraph>::vertex_descriptor,boost::graph_traits<udGraph>::vertex_descriptor> predecessors = Backend.getPredecessorMapFrom(g.source());
+                
+                // predecessors will contain information about how to get from any point to the source
+                
+                // now do swaps until we get to a vertex next to the source
+                // we move the target of gate to the source
+                boost::graph_traits<udGraph>::vertex_descriptor current = Backend.indexVertexTable[g.target()];
+
+                // insert swaps until we reach the destination
+                while(Backend.disMap[Backend.indexVertexTable[g.source()]][current] > 1){
+                    // get the next one
+                    boost::graph_traits<udGraph>::vertex_descriptor nextRegister = predecessors[current];
+
+                    int first = Backend.vertexIndexTable[current];
+                    int second = Backend.vertexIndexTable[nextRegister];
+
+                    // insert the swap code
+                    int sw1[2] = {first,second};
+                    int sw2[2] = {second,first};
+                    int sw3[2] = {first,second};
+
+                    pathed.push_back(mGate(sw1, "cx"));
+                    pathed.push_back(mGate(sw2, "cx"));
+                    pathed.push_back(mGate(sw3, "cx"));
+
+                    // add the old current to returnStack
+                    returnStack.push_back(current);
+                    current = nextRegister;
+
+                }
+                // apply the gate
+                int ap1[2] = {g.source(),Backend.vertexIndexTable[current]};
+                pathed.push_back(mGate(ap1,"cx"));
+
+                // return back
+                for(boost::graph_traits<udGraph>::vertex_descriptor nextRegister : returnStack){
+                    
+                    int first = Backend.vertexIndexTable[current];
+                    int second = Backend.vertexIndexTable[nextRegister];
+
+                    // insert the swap code
+                    int sw1[2] = {first,second};
+                    int sw2[2] = {second,first};
+                    int sw3[2] = {first,second};
+
+                    pathed.push_back(mGate(sw1, "cx"));
+                    pathed.push_back(mGate(sw2, "cx"));
+                    pathed.push_back(mGate(sw3, "cx"));
+
+                    current = nextRegister;
+                }
+                
+
+            }
+
+
+
+            
+        }
+    }
+    // TODO do inversion of gates
+
+    for(mGate g : pathed){
             bool found = false;
             if(Backend.connection.count(g.source())){
                 // our source exists...
@@ -102,18 +184,28 @@ int mCircuit::Fit()
 
                 inverted++;
             }
-        }
+
     }
-    
+
+
 
     Gates = updated;
 
+    if(moved > 0)
+    {
+        // we had to move register content 
+        return 2;
+    }
+
     if(inverted > 0)
     {
+        // fit without changes
         return 0;
     }
+
+
     
-    // We know it fits but dont know if with CX direction changes
+    // Fit with invert
     return 1;
 }
 

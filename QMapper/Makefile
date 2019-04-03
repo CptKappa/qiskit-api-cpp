@@ -4,6 +4,7 @@ CXX = g++
 CXXFLAGS = -c -Wall -std=c++11 -fpic
 
 QMAPPEROBJECTS = mGate.o mArchitecture.o mCircuit.o
+LIBPATH = /usr/lib
 
 all: $(QMAPPEROBJECTS)
 
@@ -20,3 +21,12 @@ mCircuit.o: mCircuit.cpp mCircuit.h \
 
 clean:
 	rm -f *.o
+
+install:
+	install ./libQmapper.so $(LIBPATH)
+
+uninstall:
+	rm -f $(LIBPATH)/libQmapper.so
+
+test: all
+	$(CXX) mGate.o mArchitecture.o mCircuit.o -shared -o libQmapper.so
