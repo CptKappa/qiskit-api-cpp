@@ -32,9 +32,9 @@ int main()
     std::list<std::string> lines;
     //lines.push_back("H q[2];");
     lines.push_back("CX q[4],q[0];");
-    //lines.push_back("H q[2];");
+    lines.push_back("H q[2];");
     //lines.push_back("CX q[2],q[1];");
-    //lines.push_back("H q[2];");
+    lines.push_back("H q[2];");
     //lines.push_back("CX q[2],q[3];");
     //lines.push_back("H q[2];");
     //lines.push_back("CX q[2],q[4];");
