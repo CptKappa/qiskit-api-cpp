@@ -27,7 +27,9 @@ namespace QRest
         std::string created;
         std::string userId;
 
-        const std::string client_application = "C++_API";
+        //const std::string client_application = "C++_API";
+        const std::string client_application = "qiskit-api-py";
+        
         const std::string codeType = "QASM2";
         std::string url = "https://quantumexperience.ng.bluemix.net/api";
 
