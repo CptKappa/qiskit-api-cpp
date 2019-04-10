@@ -148,7 +148,11 @@ int mCircuit::Fit()
 
     for(mGate g : pathed){
             bool found = false;
-            if(Backend.connection.count(g.source())){
+            if(g.count() == 1){
+                updated.push_back(g);
+            }
+            else{
+                if(Backend.connection.count(g.source())){
                 // our source exists...
                 
                 for(int v : Backend.connection[g.source()] ){
@@ -164,26 +168,28 @@ int mCircuit::Fit()
                     }                    
                 //}
 
-            }
-            if(!found)
-            {
+                }
+                if(!found)
+                {
                 // this means we have to invert!
 
-                int hS1[2] = {g.source(), -1};
-                int hS2[2] = {g.source(), -1};
+                    int hS1[2] = {g.source(), -1};
+                    int hS2[2] = {g.source(), -1};
 
-                int hT1[2] = {g.target(), -1};
-                int hT2[2] = {g.target(), -1};
+                    int hT1[2] = {g.target(), -1};
+                    int hT2[2] = {g.target(), -1};
 
-                updated.push_back(mGate(hS1, "h"));
-                updated.push_back(mGate(hT1, "h"));
-                g.revert();
-                updated.push_back(g);
-                updated.push_back(mGate(hS2, "h"));
-                updated.push_back(mGate(hT2, "h"));
+                    updated.push_back(mGate(hS1, "h"));
+                    updated.push_back(mGate(hT1, "h"));
+                    g.revert();
+                    updated.push_back(g);
+                    updated.push_back(mGate(hS2, "h"));
+                    updated.push_back(mGate(hT2, "h"));
 
-                inverted++;
+                    inverted++;
+                }
             }
+            
 
     }
 
