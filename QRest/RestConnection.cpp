@@ -171,7 +171,7 @@ namespace QRest
 			}
 			else
 			{
-				throw Exceptions::WebRequestException("HTTP-CODE " + std::to_string(response_code));
+				throw Exceptions::WebRequestException("(" + std::to_string(response_code) + ") " + jsonObj["error"]["message"].asString());
                 return;
 			}
 		}
@@ -235,8 +235,8 @@ namespace QRest
 		//std::cout << std::endl << std::endl << data << std::endl << std::endl << std::endl;
 
 		// set url and get variables
-        std::string executeUrl = std::string(url) + 
-            "/jobs?access_token=" + this->accessToken;
+        std::string executeUrl = std::string(url) + "/jobs?access_token=" + this->accessToken;
+        //std::string executeUrl = std::string("http://httpbin.org/post");
 
 		try
 		{
@@ -285,8 +285,7 @@ namespace QRest
 			}
 			else
 			{
-				std::cout << "ERROR" << std::endl;
-				throw Exceptions::WebRequestException("HTTP-CODE: " + std::to_string(response_code));
+				throw Exceptions::WebRequestException("(" + std::to_string(response_code) + ") " + jsonObj["error"]["message"].asString());
 			}
 		}
 		catch (const QRest::Exceptions::WebRequestException& e)
@@ -323,14 +322,14 @@ namespace QRest
 			if (response_code == 200)
 			{
 				// save response data
-
+				std::cout << response << std::endl;
 				QWrapper::QResponse* qresponse = QWrapper::QWFactory::Create(response);
 				
 				return qresponse;
 			}
 			else
 			{
-				throw Exceptions::WebRequestException("HTTP-CODE " + std::to_string(response_code));
+				throw Exceptions::WebRequestException("(" + std::to_string(response_code) + ") " + jsonObj["error"]["message"].asString());
 			}
 		}
 		catch (const QRest::Exceptions::WebRequestException& e)
@@ -396,7 +395,7 @@ namespace QRest
 			}
 			else
 			{
-				throw Exceptions::WebRequestException("HTTP-CODE " + std::to_string(response_code));
+				throw Exceptions::WebRequestException("(" + std::to_string(response_code) + ") " + jsonObj["error"]["message"].asString());
 				return res;
 			}
 		}
