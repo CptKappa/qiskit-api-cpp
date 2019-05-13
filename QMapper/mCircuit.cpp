@@ -205,14 +205,14 @@ int mCircuit::Fit()
 
     if(inverted > 0)
     {
-        // fit without changes
-        return 0;
+        // fit with changes
+        return 1;
     }
 
 
     
-    // Fit with invert
-    return 1;
+    // Fit without invert
+    return 0;
 }
 
 std::list<mGate> mCircuit::ReadGates(std::list<std::string> lines)
